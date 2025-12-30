@@ -657,10 +657,9 @@ function exportToPDF() {
         doc.addImage(canvasDataUrl, 'JPEG', 15, 40, finalWidth, finalHeight);
 
         // Prepare table data (reverse to match pin order: oldest=1, newest=N)
-        const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "抽出 Hex", "座標", "ΔE"];
+        const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "抽出 Hex", "ΔE"];
         const tableRows = [...colorHistory].reverse().map((item, index) => {
             const pinNumber = index + 1;
-            const coordText = `(${item.x}, ${item.y})`;
             return [
                 pinNumber.toString(),
                 '', // Placeholder for color swatch
@@ -668,7 +667,6 @@ function exportToPDF() {
                 item.name_en,
                 item.hex,
                 item.picked_hex,
-                coordText,
                 item.deltaE.toFixed(2)
             ];
         });
@@ -693,12 +691,11 @@ function exportToPDF() {
             columnStyles: {
                 0: { cellWidth: 10, halign: 'center' }, // Pin
                 1: { cellWidth: 12 }, // Color swatch
-                2: { cellWidth: 15 }, // DMC
-                3: { cellWidth: 35 }, // Color Name
-                4: { cellWidth: 25 }, // DMC Hex
-                5: { cellWidth: 25 }, // Picked Hex
-                6: { cellWidth: 25, fontSize: 7 }, // 座標（小さめ）
-                7: { cellWidth: 15 } // ΔE
+                2: { cellWidth: 20 }, // DMC
+                3: { cellWidth: 50 }, // Color Name
+                4: { cellWidth: 30 }, // DMC Hex
+                5: { cellWidth: 30 }, // Picked Hex
+                6: { cellWidth: 20 } // ΔE
             },
             didDrawCell: function(data) {
                 // Draw color swatches in column 1 (index 1)

@@ -720,6 +720,13 @@ function exportToPDF() {
             }
         });
 
+        // Add Delta E explanation note
+        const finalY = doc.lastAutoTable.finalY || tableStartY + 20;
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text('* Delta E: Color difference value.', 14, finalY + 8);
+        doc.text('  0-2 = Almost identical,  2-5 = Close match,  5-10 = Slightly different,  10+ = Clearly different', 14, finalY + 13);
+
         const dateStr = new Date().toISOString().slice(0, 10);
         const filename = `dmc_report_${dateStr}.pdf`;
 

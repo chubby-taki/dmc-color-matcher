@@ -192,30 +192,14 @@ function render() {
     ctx.drawImage(currentImage, 0, 0);
     ctx.restore();
 
-    // Draw Pins
-    // Draw Pins (Reverse order so newest are on top)
-    // Draw Pins (Reverse order so newest are on top)
-    [...colorHistory].reverse().forEach((entry) => {
-        // Find original index for number display
-        const index = colorHistory.length - 1 - colorHistory.indexOf(entry); // Wait, if I reverse, I lose the index.
-        // Better to not rely on index from forEach if reversing.
-        // Actually, let's keep it simple. Index in history is Newest=0.
-        // We want Newest = 1? No, usually Oldest = 1.
-        // If history has 5 items. [Newest, ..., Oldest]
-        // If we want pin numbers to be stable (1..N), normally #1 is the FIRST one picked (Oldest).
-        // So Oldest should be #1. Newest should be #N.
-        // history[history.length-1] is Oldest.
-        // So index in history: i.
-        // Number = history.length - i.
-
-        if (entry.x === undefined || entry.y === undefined) return;
-
+    // Draw Pins (newest on top, numbered from oldest=1 to newest=N)
+    [...colorHistory].reverse().forEach((entry, reversedIndex) => {
         if (entry.x === undefined || entry.y === undefined) return;
 
         const px = (entry.x * zoom * imageScale) + offsetX;
         const py = (entry.y * zoom * imageScale) + offsetY;
 
-        // Check if pin is roughly visible (optional, but good for performance if many)
+        // Check if pin is roughly visible
         if (px < -20 || px > viewportWidth + 20 || py < -20 || py > viewportHeight + 20) return;
 
         // Draw Pin (White circle with number)
@@ -227,13 +211,13 @@ function render() {
         ctx.lineWidth = 2;
         ctx.stroke();
 
+        // Pin number: oldest=1, newest=N
+        const pinNumber = colorHistory.length - reversedIndex;
         ctx.fillStyle = '#1a1a2e';
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.textBaseline = 'middle';
-        const label = colorHistory.length - colorHistory.indexOf(entry);
-        ctx.fillText(label, px, py);
+        ctx.fillText(pinNumber, px, py);
     });
 
     // Ensure offsets stay within bounds after any transformation
@@ -541,10 +525,8 @@ function renderHistory() {
         return;
     }
     exportCsvBtn.style.display = 'block';
-    exportCsvBtn.textContent = '📥 CSV出力 (v8)'; // Version indicator
     if (exportPdfBtn) {
         exportPdfBtn.style.display = 'block';
-        exportPdfBtn.textContent = '📄 PDF出力 (v8)'; // Version indicator
     }
     historyList.innerHTML = colorHistory.map(entry => `
     <div class="history-item">

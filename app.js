@@ -114,6 +114,15 @@ function setupEventListeners() {
 function handleImageFile(file) {
     if (!file.type.startsWith('image/')) return;
 
+    // If there's an existing image with history, ask if user wants to clear
+    if (currentImage && colorHistory.length > 0) {
+        if (confirm('新しい画像を読み込みます。現在の抽出履歴をクリアしますか？')) {
+            colorHistory = [];
+            localStorage.setItem('dmcHistory', JSON.stringify(colorHistory));
+            renderHistory();
+        }
+    }
+
     const reader = new FileReader();
     reader.onload = (e) => {
         const img = new Image();
@@ -551,9 +560,22 @@ function deleteHistoryItem(id) {
 }
 
 function clearHistory() {
+    if (colorHistory.length === 0) {
+        alert('クリアする履歴がありません');
+        return;
+    }
     if (confirm('履歴をすべて削除しますか？')) {
         colorHistory = [];
         localStorage.setItem('dmcHistory', JSON.stringify(colorHistory));
+
+        // Hide results section and reset picked color
+        resultsSection.style.display = 'none';
+        pickedColor = null;
+        findMatchBtn.disabled = true;
+        colorSwatch.style.backgroundColor = '';
+        rgbValue.textContent = 'RGB: -';
+        hexValue.textContent = 'HEX: -';
+
         render();
         renderHistory();
     }

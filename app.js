@@ -627,31 +627,98 @@ function exportToPDF() {
         if (!window.jspdf) {
             throw new Error('PDFライブラリが読み込まれていません。ページを再読み込みしてください。');
         }
+        if (!currentImage) {
+            throw new Error('画像が読み込まれていません。');
+        }
+        if (colorHistory.length === 0) {
+            throw new Error('抽出履歴がありません。');
+        }
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
+        // Title
         doc.setFontSize(18);
         doc.text('DMC Color Matcher Report', 14, 22);
 
         doc.setFontSize(11);
         doc.text(`Date: ${new Date().toISOString().slice(0, 10)}`, 14, 30);
 
-        const tableColumn = ["DMC No.", "Color Name", "DMC Hex", "Picked Hex", "Delta E"];
-        const tableRows = colorHistory.map(item => [
-            item.dmc_id,
-            item.name_en,
-            item.hex,
-            item.picked_hex,
-            item.deltaE.toFixed(2)
-        ]);
+        // Get canvas snapshot with pins
+        const canvasDataUrl = imageCanvas.toDataURL('image/jpeg', 0.8);
+
+        // Add image to PDF (large size)
+        const imgWidth = 180; // A4 width minus margins
+        const imgHeight = (imageCanvas.height / imageCanvas.width) * imgWidth;
+        const maxHeight = 200; // Maximum height to leave space for table
+        const finalHeight = Math.min(imgHeight, maxHeight);
+        const finalWidth = (finalHeight / imgHeight) * imgWidth;
+
+        doc.addImage(canvasDataUrl, 'JPEG', 15, 40, finalWidth, finalHeight);
+
+        // Prepare table data
+        const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "抽出 Hex", "座標", "ΔE"];
+        const tableRows = colorHistory.map((item, index) => {
+            const pinNumber = colorHistory.length - index;
+            const coordText = `(${item.x}, ${item.y})`;
+            return [
+                pinNumber.toString(),
+                '', // Placeholder for color swatch
+                item.dmc_id,
+                item.name_en,
+                item.hex,
+                item.picked_hex,
+                coordText,
+                item.deltaE.toFixed(2)
+            ];
+        });
+
+        // Start table after image
+        const tableStartY = 40 + finalHeight + 10;
 
         doc.autoTable({
             head: [tableColumn],
             body: tableRows,
-            startY: 40,
+            startY: tableStartY,
             theme: 'grid',
-            styles: { fontSize: 10 },
-            headStyles: { fillColor: [44, 62, 80] }
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            headStyles: {
+                fillColor: [44, 62, 80],
+                fontSize: 10,
+                fontStyle: 'bold'
+            },
+            columnStyles: {
+                0: { cellWidth: 10, halign: 'center' }, // Pin
+                1: { cellWidth: 12 }, // Color swatch
+                2: { cellWidth: 15 }, // DMC
+                3: { cellWidth: 35 }, // Color Name
+                4: { cellWidth: 25 }, // DMC Hex
+                5: { cellWidth: 25 }, // Picked Hex
+                6: { cellWidth: 25, fontSize: 7 }, // 座標（小さめ）
+                7: { cellWidth: 15 } // ΔE
+            },
+            didDrawCell: function(data) {
+                // Draw color swatches in column 1 (index 1)
+                if (data.column.index === 1 && data.section === 'body') {
+                    const rowIndex = data.row.index;
+                    const item = colorHistory[rowIndex];
+
+                    // Draw picked color swatch (left half)
+                    const hex1 = item.picked_hex;
+                    const rgb1 = hexToRgb(hex1);
+                    doc.setFillColor(rgb1.r, rgb1.g, rgb1.b);
+                    doc.rect(data.cell.x + 1, data.cell.y + 1, 5, data.cell.height - 2, 'F');
+
+                    // Draw DMC color swatch (right half)
+                    const hex2 = item.hex;
+                    const rgb2 = hexToRgb(hex2);
+                    doc.setFillColor(rgb2.r, rgb2.g, rgb2.b);
+                    doc.rect(data.cell.x + 6, data.cell.y + 1, 5, data.cell.height - 2, 'F');
+                }
+            }
         });
 
         const dateStr = new Date().toISOString().slice(0, 10);
@@ -676,6 +743,16 @@ function exportToPDF() {
         console.error('PDF Export Failed:', e);
         alert('PDF出力に失敗しました:\n' + e.message);
     }
+}
+
+// Helper function to convert hex to RGB
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 0, g: 0, b: 0 };
 }
 
 init();

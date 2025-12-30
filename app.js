@@ -571,22 +571,26 @@ function exportToCSV() {
         const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
         console.log('CSV Data Generated:', csvContent.length, 'bytes');
 
-        // Use Data URI method (often more robust than Blobs for local files)
-        // Add BOM for Excel compatibility
+        // Add BOM for Excel compatibility and create Blob
         const BOM = '\uFEFF';
-        const encodedUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(BOM + csvContent);
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
 
         const dateStr = new Date().toISOString().slice(0, 10);
         const filename = `dmc_colors_${dateStr}.csv`;
 
+        // Create download link with Blob URL
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.setAttribute('href', encodedUri);
-        link.setAttribute('download', filename);
+        link.href = url;
+        link.download = filename;
         document.body.appendChild(link);
 
         console.log('Clicking download link...');
         link.click();
+
+        // Cleanup
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
         console.log('Download initiated.');
 
     } catch (e) {
@@ -595,7 +599,7 @@ function exportToCSV() {
     }
 }
 
-async function exportToPDF() {
+function exportToPDF() {
     try {
         console.log('Starting PDF Export...');
         if (!window.jspdf) {
@@ -631,10 +635,20 @@ async function exportToPDF() {
         const dateStr = new Date().toISOString().slice(0, 10);
         const filename = `dmc_report_${dateStr}.pdf`;
 
-        console.log('PDF Generated. Saving via jsPDF.save()...');
+        console.log('PDF Generated. Saving as:', filename);
 
-        // Revert to native library method which handles browser quirks better
-        doc.save(filename);
+        // Use Blob method for consistent behavior
+        const pdfBlob = doc.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log('PDF download initiated.');
 
     } catch (e) {
         console.error('PDF Export Failed:', e);

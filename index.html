@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMC Color Matcher - 刺繍糸色変換</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <h1>🧵 DMC Color Matcher</h1>
+      <p class="subtitle">写真から刺繍糸の色を見つける</p>
+    </header>
+
+    <!-- Image Upload Section -->
+    <section class="upload-section">
+      <div class="upload-area" id="uploadArea">
+        <input type="file" id="imageInput" accept="image/*" hidden>
+        <div class="upload-content">
+          <span class="upload-icon">📷</span>
+          <p>画像をドロップ または クリックして選択</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Canvas Section -->
+    <section class="canvas-section" id="canvasSection" style="display:none;">
+      <div class="canvas-container">
+        <canvas id="imageCanvas"></canvas>
+        <div class="color-picker-cursor" id="cursor"></div>
+      </div>
+
+      <!-- Zoom Controls -->
+      <div class="zoom-controls">
+        <button id="zoomOutBtn" class="zoom-btn">－</button>
+        <span id="zoomLevel">100%</span>
+        <button id="zoomInBtn" class="zoom-btn">＋</button>
+        <button id="zoomResetBtn" class="zoom-btn reset">リセット</button>
+        <button id="modeToggleBtn" class="mode-btn">🔍 スポイト</button>
+      </div>
+
+      <p class="zoom-hint">💡 スクロールで拡大縮小 • Shiftを押しながらドラッグでパン移動</p>
+
+      <!-- Eyedropper Controls -->
+      <div class="eyedropper-controls">
+        <label>スポイトサイズ: <span id="sizeValue">5x5</span>px</label>
+        <input type="range" id="eyedropperSize" min="1" max="10" step="1" value="5">
+      </div>
+
+      <!-- Picked Color Preview -->
+      <div class="picked-color" id="pickedColor">
+        <div class="color-swatch" id="colorSwatch"></div>
+        <div class="color-info">
+          <p id="rgbValue">RGB: -</p>
+          <p id="hexValue">HEX: -</p>
+        </div>
+        <button id="findMatchBtn" class="btn-primary" disabled>DMC色を検索</button>
+      </div>
+    </section>
+
+    <!-- Match Results -->
+    <section class="results-section" id="resultsSection" style="display:none;">
+      <h2>🎯 マッチング結果</h2>
+      <div class="match-list" id="matchList"></div>
+    </section>
+
+    <!-- History Section -->
+    <section class="history-section" id="historySection">
+      <div class="history-header">
+        <h2>📋 抽出履歴</h2>
+        <button id="clearHistoryBtn" class="btn-secondary">クリア</button>
+      </div>
+      <div class="history-list" id="historyList">
+        <p class="empty-message">まだ履歴がありません</p>
+      </div>
+      <button id="exportCsvBtn" class="btn-export" style="display:none;">📥 CSV出力</button>
+      <button id="exportPdfBtn" class="btn-export" style="display:none;">📄 PDF出力</button>
+    </section>
+  </div>
+
+  <script src="ciede2000.js"></script>
+  <script src="app.js?v=8"></script>
+</body>
+
+</html>

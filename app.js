@@ -657,7 +657,7 @@ function exportToPDF() {
         doc.addImage(canvasDataUrl, 'JPEG', 15, 40, finalWidth, finalHeight);
 
         // Prepare table data (reverse to match pin order: oldest=1, newest=N)
-        const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "抽出 Hex", "ΔE"];
+        const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "Picked Hex", "Delta E"];
         const tableRows = [...colorHistory].reverse().map((item, index) => {
             const pinNumber = index + 1;
             return [

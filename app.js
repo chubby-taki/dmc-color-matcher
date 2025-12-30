@@ -221,7 +221,7 @@ function render() {
         ctx.stroke();
 
         // Pin number: oldest=1, newest=N
-        const pinNumber = colorHistory.length - reversedIndex;
+        const pinNumber = reversedIndex + 1;
         ctx.fillStyle = '#1a1a2e';
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
@@ -656,10 +656,10 @@ function exportToPDF() {
 
         doc.addImage(canvasDataUrl, 'JPEG', 15, 40, finalWidth, finalHeight);
 
-        // Prepare table data
+        // Prepare table data (reverse to match pin order: oldest=1, newest=N)
         const tableColumn = ["Pin", "", "DMC", "Color Name", "DMC Hex", "抽出 Hex", "座標", "ΔE"];
-        const tableRows = colorHistory.map((item, index) => {
-            const pinNumber = colorHistory.length - index;
+        const tableRows = [...colorHistory].reverse().map((item, index) => {
+            const pinNumber = index + 1;
             const coordText = `(${item.x}, ${item.y})`;
             return [
                 pinNumber.toString(),
@@ -704,7 +704,9 @@ function exportToPDF() {
                 // Draw color swatches in column 1 (index 1)
                 if (data.column.index === 1 && data.section === 'body') {
                     const rowIndex = data.row.index;
-                    const item = colorHistory[rowIndex];
+                    // Table is reversed, so we need to access from reversed array
+                    const reversedHistory = [...colorHistory].reverse();
+                    const item = reversedHistory[rowIndex];
 
                     // Draw picked color swatch (left half)
                     const hex1 = item.picked_hex;

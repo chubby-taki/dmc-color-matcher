@@ -1,15 +1,15 @@
 /* DMC Color Matcher - Styles */
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --secondary: #10b981;
-  --bg-dark: #0f172a;
-  --bg-card: #1e293b;
-  --bg-hover: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-  --border: #334155;
-  --shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  --primary: #8b7355;
+  --primary-dark: #6b5344;
+  --secondary: #7c9473;
+  --bg-dark: #f5f0e8;
+  --bg-card: #ebe5db;
+  --bg-hover: #ddd5c8;
+  --text-primary: #3d3329;
+  --text-secondary: #6b5f52;
+  --border: #c9bfb0;
+  --shadow: 0 10px 40px rgba(107, 83, 68, 0.15);
   --radius: 16px;
   --radius-sm: 8px;
 }
@@ -22,14 +22,14 @@
 
 body {
   font-family: 'Noto Sans JP', -apple-system, sans-serif;
-  background: linear-gradient(135deg, var(--bg-dark) 0%, #1a1a2e 100%);
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #e8e0d5 100%);
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
 }
 
 .app-container {
-  max-width: 600px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
   padding-bottom: 100px;
@@ -44,7 +44,7 @@ body {
 .header h1 {
   font-size: 1.8rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #818cf8, #c084fc);
+  background: linear-gradient(135deg, #8b7355, #a08060);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,6 +61,8 @@ body {
 }
 
 .upload-area {
+  display: block;
+  position: relative;
   background: var(--bg-card);
   border: 2px dashed var(--border);
   border-radius: var(--radius);
@@ -68,6 +70,16 @@ body {
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
+}
+
+.file-input-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .upload-area:hover,
@@ -117,6 +129,39 @@ body {
   display: none;
 }
 
+/* Minimap */
+.minimap-container {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 120px;
+  height: 90px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  display: none;
+  cursor: pointer;
+}
+
+.minimap-container.visible {
+  display: block;
+}
+
+#minimapCanvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.minimap-viewport {
+  position: absolute;
+  border: 2px solid #ff6b6b;
+  background: rgba(255, 107, 107, 0.15);
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
 /* Zoom Controls */
 .zoom-controls {
   display: flex;
@@ -160,6 +205,11 @@ body {
   color: var(--text-primary);
 }
 
+.mode-buttons {
+  display: flex;
+  gap: 4px;
+}
+
 .mode-btn {
   padding: 8px 16px;
   border: 1px solid var(--border);
@@ -169,17 +219,18 @@ body {
   font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin-left: 8px;
 }
 
 .mode-btn:hover {
   background: var(--primary);
   border-color: var(--primary);
+  color: white;
 }
 
-.mode-btn.pan-mode {
-  background: #f59e0b;
-  border-color: #f59e0b;
+.mode-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
 }
 
 .zoom-hint {
@@ -193,31 +244,43 @@ body {
 /* Eyedropper Controls */
 .eyedropper-controls {
   margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .eyedropper-controls label {
-  display: block;
-  margin-bottom: 8px;
   color: var(--text-secondary);
   font-size: 0.9rem;
+  white-space: nowrap;
 }
 
-.eyedropper-controls input[type="range"] {
-  width: 100%;
-  height: 8px;
-  appearance: none;
-  background: var(--border);
-  border-radius: 4px;
-  outline: none;
+.size-buttons {
+  display: flex;
+  gap: 6px;
 }
 
-.eyedropper-controls input[type="range"]::-webkit-slider-thumb {
-  appearance: none;
-  width: 20px;
-  height: 20px;
-  background: var(--primary);
-  border-radius: 50%;
+.size-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-radius: 6px;
+  font-size: 0.85rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.size-btn:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.size-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
 }
 
 /* Picked Color */
@@ -264,7 +327,7 @@ body {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 20px rgba(139, 115, 85, 0.4);
 }
 
 .btn-primary:disabled {
@@ -319,24 +382,27 @@ body {
 }
 
 .match-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .match-item {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 12px;
   background: var(--bg-hover);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s ease;
+  text-align: center;
 }
 
 .match-item:hover {
-  background: rgba(99, 102, 241, 0.15);
+  background: rgba(139, 115, 85, 0.15);
 }
 
 .match-item.selected {
@@ -443,6 +509,19 @@ body {
   margin-bottom: 8px;
 }
 
+.history-item .pin-number {
+  min-width: 24px;
+  height: 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
 .history-swatches {
   display: flex;
   gap: 4px;
@@ -486,18 +565,31 @@ body {
 
 .history-item.highlight {
   border: 2px solid var(--primary);
-  background: rgba(99, 102, 241, 0.1);
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+  background: rgba(139, 115, 85, 0.1);
+  box-shadow: 0 0 15px rgba(139, 115, 85, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 480px) {
+/* Responsive - Tablet (768px - 1023px) */
+@media (max-width: 1023px) {
   .app-container {
+    max-width: 768px;
+    padding: 16px;
+  }
+}
+
+/* Responsive - Mobile (767px and below) */
+@media (max-width: 767px) {
+  .app-container {
+    max-width: 100%;
     padding: 12px;
   }
 
   .header h1 {
     font-size: 1.5rem;
+  }
+
+  .header p {
+    font-size: 0.9rem;
   }
 
   .picked-color {
@@ -507,5 +599,29 @@ body {
   .btn-primary {
     width: 100%;
     margin-top: 12px;
+  }
+
+  .match-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .match-item {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .match-swatch {
+    width: 40px;
+    height: 40px;
+  }
+
+  .zoom-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .zoom-controls input[type="range"] {
+    width: 100%;
   }
 }

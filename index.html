@@ -8,9 +8,10 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2c3e50">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=10">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 
 <body>
@@ -18,42 +19,48 @@
     <!-- Header -->
     <header class="header">
       <h1>🧵 DMC Color Matcher</h1>
-      <p class="subtitle">写真から刺繍糸の色を見つける</p>
+      <p>画像をアップロードしてDMC刺繍糸の色番号に変換</p>
     </header>
 
-    <!-- Image Upload Section -->
-    <section class="upload-section">
-      <div class="upload-area" id="uploadArea">
-        <input type="file" id="imageInput" accept="image/*" hidden>
-        <div class="upload-content">
-          <span class="upload-icon">📷</span>
-          <p>画像をドロップ または クリックして選択</p>
-        </div>
+    <!-- Upload Area -->
+    <div class="upload-area" id="uploadArea">
+      <input type="file" id="imageInput" accept="image/*" class="file-input-hidden">
+      <div class="upload-placeholder">
+        <span class="upload-icon">📷</span>
+        <p>画像をドロップ または クリックして選択</p>
       </div>
-    </section>
+    </div>
 
     <!-- Canvas Section -->
     <section class="canvas-section" id="canvasSection" style="display:none;">
       <div class="canvas-container">
         <canvas id="imageCanvas"></canvas>
         <div class="color-picker-cursor" id="cursor"></div>
+        <div class="minimap-container" id="minimapContainer">
+          <canvas id="minimapCanvas"></canvas>
+          <div class="minimap-viewport" id="minimapViewport"></div>
+        </div>
       </div>
 
       <!-- Zoom Controls -->
       <div class="zoom-controls">
-        <button id="zoomOutBtn" class="zoom-btn">－</button>
+        <span class="control-label">🔍 拡大率</span>
+        <input type="range" id="zoomSlider" min="0.1" max="16" step="0.1" value="1">
         <span id="zoomLevel">100%</span>
-        <button id="zoomInBtn" class="zoom-btn">＋</button>
         <button id="zoomResetBtn" class="zoom-btn reset">リセット</button>
-        <button id="modeToggleBtn" class="mode-btn">🔍 スポイト</button>
       </div>
 
-      <p class="zoom-hint">💡 スクロールで拡大縮小 • Shiftを押しながらドラッグでパン移動</p>
+      <p class="zoom-hint">💡 スクロールで拡大縮小 • クリックでスポイト • ドラッグで移動</p>
 
       <!-- Eyedropper Controls -->
       <div class="eyedropper-controls">
-        <label>スポイトサイズ: <span id="sizeValue">5x5</span>px</label>
-        <input type="range" id="eyedropperSize" min="1" max="10" step="1" value="5">
+        <label>スポイトサイズ:</label>
+        <div class="size-buttons" id="sizeButtons">
+          <button class="size-btn active" data-size="1">1px</button>
+          <button class="size-btn" data-size="2">2px</button>
+          <button class="size-btn" data-size="3">3px</button>
+          <button class="size-btn" data-size="5">5px</button>
+        </div>
       </div>
 
       <!-- Picked Color Preview -->
@@ -69,12 +76,12 @@
 
     <!-- Match Results -->
     <section class="results-section" id="resultsSection" style="display:none;">
-      <h2>🎯 マッチング結果</h2>
+      <h2>🎯 マッチング結果（上位3候補）</h2>
       <div class="match-list" id="matchList"></div>
     </section>
 
     <!-- History Section -->
-    <section class="history-section" id="historySection">
+    <section class="history-section" id="historySection" style="display:none;">
       <div class="history-header">
         <h2>📋 抽出履歴</h2>
         <button id="clearHistoryBtn" class="btn-secondary">クリア</button>
@@ -88,7 +95,7 @@
   </div>
 
   <script src="ciede2000.js"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=38"></script>
 </body>
 
 </html>

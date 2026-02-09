@@ -509,6 +509,7 @@ function onMouseMove(e) {
 
     // Check if mouse button is pressed (dragging)
     if (e.buttons === 1) {
+        e.preventDefault(); // Prevent page scrolling during drag
         const dx = e.clientX - mouseDownX;
         const dy = e.clientY - mouseDownY;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -611,6 +612,7 @@ function onTouchMove(e) {
 
         // If moved beyond threshold, it's a drag (pan)
         if (distance > DRAG_THRESHOLD) {
+            e.preventDefault(); // Prevent page scrolling during drag
             if (!isTouchDragging) {
                 isTouchDragging = true;
                 isPanning = true;

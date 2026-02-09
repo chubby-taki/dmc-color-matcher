@@ -598,7 +598,21 @@ function onTouchMove(e) {
     if (e.touches.length === 2) {
         e.preventDefault();
         const dist = getTouchDist(e.touches);
-        zoom = Math.max(0.5, Math.min(16, touchStartZoom * (dist / touchStartDist)));
+        const newZoom = Math.max(0.5, Math.min(16, touchStartZoom * (dist / touchStartDist)));
+
+        // Calculate pinch center point in canvas coordinates
+        const rect = imageCanvas.getBoundingClientRect();
+        const centerX = ((e.touches[0].clientX + e.touches[1].clientX) / 2) - rect.left;
+        const centerY = ((e.touches[0].clientY + e.touches[1].clientY) / 2) - rect.top;
+
+        // Apply zoom with center point
+        const oldZoom = zoom;
+        zoom = newZoom;
+
+        // Adjust offset to keep the pinch center point stationary
+        offsetX = centerX - (centerX - offsetX) * (zoom / oldZoom);
+        offsetY = centerY - (centerY - offsetY) * (zoom / oldZoom);
+
         clampOffsets();
         render();
         updateZoomDisplay();
